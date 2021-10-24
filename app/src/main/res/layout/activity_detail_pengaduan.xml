@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".view.DetailPengaduan">
 
-
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/top"
         android:layout_width="match_parent"
@@ -39,19 +38,22 @@
     <ScrollView
         android:id="@+id/scrol"
         android:layout_width="match_parent"
-        android:layout_below="@id/top"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_below="@id/top">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="10dp">
+            android:padding="5dp">
 
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="5dp"
+                android:layout_marginStart="5dp"
+                android:layout_marginBottom="5dp"
                 app:cardCornerRadius="10dp"
                 app:cardElevation="6dp">
 
@@ -59,7 +61,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="15dp">
 
                     <LinearLayout
                         android:layout_width="wrap_content"
@@ -79,9 +81,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:layout_marginTop="10dp"
+                        android:layout_marginTop="5dp"
                         android:fontFamily="@font/poppins_bold"
-                        android:text="Jonatan"
                         android:textColor="@color/black"
                         android:textSize="18sp" />
 
@@ -91,7 +92,6 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:fontFamily="@font/poppins_regular"
-                        android:text="email@gmail.com"
                         android:textColor="@color/black"
                         android:textSize="14sp" />
 
@@ -101,7 +101,6 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
                         android:fontFamily="@font/poppins_regular"
-                        android:text="email@gmail.com"
                         android:textColor="@color/black"
                         android:textSize="14sp" />
 
@@ -111,7 +110,10 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="5dp"
+                android:layout_marginStart="5dp"
+                android:layout_marginBottom="5dp"
                 app:cardCornerRadius="10dp"
                 app:cardElevation="6dp">
 
@@ -135,7 +137,7 @@
                         android:id="@+id/judul_saran"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
+                        android:layout_marginTop="5dp"
                         android:fontFamily="@font/poppins_medium"
                         android:textColor="@color/black"
                         android:textSize="14sp" />
@@ -144,13 +146,71 @@
                         android:id="@+id/saran"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
                         android:fontFamily="@font/poppins_regular"
                         android:textColor="@color/black"
                         android:textSize="12sp" />
 
                     <TextView
                         android:id="@+id/tanggal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="right"
+                        android:layout_marginTop="5dp"
+                        android:fontFamily="@font/poppins_regular"
+                        android:textColor="@color/black"
+                        android:textSize="12sp" />
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="5dp"
+                android:layout_marginStart="5dp"
+                android:layout_marginBottom="5dp"
+                app:cardCornerRadius="10dp"
+                app:cardElevation="6dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="#3300C853"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:id="@+id/text2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="right"
+                        android:fontFamily="@font/poppins_bold"
+                        android:text="Balasan Saran"
+                        android:textColor="@color/black"
+                        android:textSize="18sp" />
+
+                    <TextView
+                        android:id="@+id/judul_saran2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="right"
+                        android:layout_marginTop="5dp"
+                        android:fontFamily="@font/poppins_medium"
+                        android:textColor="@color/black"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/jawaban"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="right"
+                        android:fontFamily="@font/poppins_regular"
+                        android:textColor="@color/black"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/tanggal2"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
@@ -168,10 +228,10 @@
     <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/animationView4"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="120dp"
         android:layout_alignParentBottom="true"
+        android:layout_marginBottom="10dp"
         app:lottie_autoPlay="true"
         app:lottie_loop="true"
-        android:layout_marginBottom="10dp"
         app:lottie_rawRes="@raw/animasi_kesehatan" />
 </RelativeLayout>

@@ -91,7 +91,6 @@ public class PengaduanActivity extends AppCompatActivity {
         btn_kirim.setOnClickListener(v -> {
             if (validasi()) {
                 kirimData();
-
             }
         });
     }
@@ -113,9 +112,8 @@ public class PengaduanActivity extends AppCompatActivity {
                     postPengaduan.setJudul_saran(data.getString("judul_saran"));
 
                     HomeActivity.dataPengaduan.add(0, postPengaduan);
-                    Objects.requireNonNull(HomeActivity.rc_data.getAdapter()).notifyItemInserted(0);
+                    HomeActivity.rc_data.getAdapter().notifyItemInserted(0);
                     HomeActivity.rc_data.getAdapter().notifyDataSetChanged();
-
                     finish();
 
                     Toast.makeText(this, "Pengaduan terkirim!", Toast.LENGTH_LONG).show();

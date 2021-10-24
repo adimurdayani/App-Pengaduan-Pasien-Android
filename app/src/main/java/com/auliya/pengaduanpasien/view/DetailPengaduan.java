@@ -32,7 +32,7 @@ public class DetailPengaduan extends AppCompatActivity {
 
     private ImageView btn_kembali;
     private String id_pengaduan;
-    private TextView txt_judulsaran, txt_saran, txt_email, txt_nama, txt_alamat, txt_tanggal;
+    private TextView txt_judulsaran, txt_saran, txt_email, txt_nama, txt_alamat, txt_tanggal,txt_judulsaran2, txt_balasan, txt_tanggal2;
     private SharedPreferences preferences;
     private StringRequest getIdPengaduan;
 
@@ -52,6 +52,9 @@ public class DetailPengaduan extends AppCompatActivity {
         txt_judulsaran = findViewById(R.id.judul_saran);
         txt_saran = findViewById(R.id.saran);
         txt_tanggal = findViewById(R.id.tanggal);
+        txt_judulsaran2 = findViewById(R.id.judul_saran2);
+        txt_balasan = findViewById(R.id.jawaban);
+        txt_tanggal2 = findViewById(R.id.tanggal2);
 
         id_pengaduan = getIntent().getStringExtra("id_pengaduan");
 
@@ -74,6 +77,10 @@ public class DetailPengaduan extends AppCompatActivity {
                     txt_judulsaran.setText(data.getString("judul_saran"));
                     txt_saran.setText(data.getString("saran"));
                     txt_tanggal.setText(data.getString("created_at"));
+
+                    txt_judulsaran2.setText(data.getString("judul_saran"));
+                    txt_balasan.setText(data.getString("jawaban_saran"));
+                    txt_tanggal2.setText(data.getString("created_at"));
                 } else {
                     Toast.makeText(this, object.getString("message"), Toast.LENGTH_SHORT).show();
                 }
