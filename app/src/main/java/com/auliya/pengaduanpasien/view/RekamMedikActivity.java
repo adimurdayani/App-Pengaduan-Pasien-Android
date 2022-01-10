@@ -6,15 +6,20 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Looper;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.RetryPolicy;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.auliya.pengaduanpasien.R;
@@ -29,6 +34,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import cn.pedant.SweetAlert.SweetAlertDialog;
 
 public class RekamMedikActivity extends AppCompatActivity {
 
@@ -48,7 +55,8 @@ public class RekamMedikActivity extends AppCompatActivity {
         setContentView(R.layout.activity_rekam_medik);
         init();
     }
-    private void init(){
+
+    private void init() {
         preferences = getApplication().getSharedPreferences("user", Context.MODE_PRIVATE);
         btn_kembali = findViewById(R.id.btn_kembali);
         rc_data = findViewById(R.id.list_data_rekam);
@@ -59,9 +67,7 @@ public class RekamMedikActivity extends AppCompatActivity {
         rc_data.setLayoutManager(layoutManager);
         rc_data.setHasFixedSize(true);
 
-        sw_data.setOnRefreshListener(() -> {
-            setGetRekammedik();
-        });
+        sw_data.setOnRefreshListener(this::setGetRekammedik);
 
         btn_kembali.setOnClickListener(v -> {
             super.onBackPressed();
@@ -81,10 +87,10 @@ public class RekamMedikActivity extends AppCompatActivity {
             }
         });
     }
-    public void setGetRekammedik(){
+
+    public void setGetRekammedik() {
         dataRekammedik = new ArrayList<>();
         sw_data.setRefreshing(true);
-
         getRekammedik = new StringRequest(Request.Method.GET, URLServer.GETREKAMMEDIK, response -> {
             try {
                 JSONObject object = new JSONObject(response);
@@ -98,32 +104,47 @@ public class RekamMedikActivity extends AppCompatActivity {
                         getRekammedik.setNo_jaminan(getData.getString("no_jaminan"));
                         getRekammedik.setDiagnosa(getData.getString("diagnosa"));
                         dataRekammedik.add(getRekammedik);
-
                     }
                     adapter = new RekamMedikAdapter(this, dataRekammedik);
                     rc_data.setAdapter(adapter);
                 } else {
-                    Toast.makeText(this, object.getString("message"), Toast.LENGTH_SHORT).show();
+                    showError(object.getString("message"));
                 }
             } catch (JSONException e) {
-                e.printStackTrace();
+                showError(e.toString());
             }
             sw_data.setRefreshing(false);
         }, error -> {
-            error.printStackTrace();
+            showError(error.toString());
             sw_data.setRefreshing(false);
-        }) {
+        });
+        getRekammedik.setRetryPolicy(new RetryPolicy() {
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                String token = preferences.getString("token", "");
-                HashMap<String, String> map = new HashMap<>();
-                map.put("Authorization", "Bearer " + token);
-                return map;
+            public int getCurrentTimeout() {
+                return 2000;
             }
 
-        };
+            @Override
+            public int getCurrentRetryCount() {
+                return 2000;
+            }
+
+            @Override
+            public void retry(VolleyError error) throws VolleyError {
+                if (Looper.myLooper() == null) {
+                    Looper.prepare();
+                    showError("Koneksi gagal");
+                }
+            }
+        });
         RequestQueue koneksi = Volley.newRequestQueue(this);
         koneksi.add(getRekammedik);
+    }
+
+    private void showError(String string) {
+        new SweetAlertDialog(this, SweetAlertDialog.ERROR_TYPE).setTitleText("Oops...")
+                .setContentText(string)
+                .show();
     }
 
     @Override

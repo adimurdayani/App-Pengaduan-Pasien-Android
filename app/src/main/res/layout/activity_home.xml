@@ -11,20 +11,42 @@
         android:layout_height="220dp"
         android:background="@drawable/bg_home" />
 
+    <ImageView
+        android:id="@+id/logo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"
+        android:src="@drawable/logo_puskesmas" />
+
+    <LinearLayout
+        android:id="@+id/garis"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_below="@id/logo"
+        android:layout_margin="16dp"
+        android:background="@color/white"
+        android:orientation="vertical" />
+
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/top"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_below="@id/garis">
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp">
 
             <ImageView
                 android:id="@+id/img_user"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
                 android:layout_centerVertical="true"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
                 android:src="@drawable/ic_user_white" />
 
             <TextView
@@ -80,17 +102,26 @@
                         app:cardCornerRadius="10dp"
                         app:cardElevation="6dp">
 
-                        <LinearLayout
+                        <RelativeLayout
                             android:layout_width="65dp"
                             android:layout_height="65dp"
-                            android:gravity="center"
-                            android:orientation="vertical">
+                            android:gravity="center">
+
+                            <LinearLayout
+                                android:id="@+id/notif"
+                                android:layout_alignParentEnd="true"
+                                android:layout_width="15dp"
+                                android:layout_height="15dp"
+                                android:background="@drawable/notif_icxon"
+                                android:orientation="vertical"
+                                android:visibility="gone"/>
 
                             <ImageView
                                 android:layout_width="50dp"
                                 android:layout_height="50dp"
+                                android:layout_centerInParent="true"
                                 android:src="@drawable/ic_baseline_send_24" />
-                        </LinearLayout>
+                        </RelativeLayout>
                     </androidx.cardview.widget.CardView>
 
                     <TextView
@@ -145,6 +176,14 @@
                         android:textSize="14sp" />
                 </LinearLayout>
 
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="16dp">
+
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -185,19 +224,12 @@
                         android:textColor="@color/black"
                         android:textSize="14sp" />
                 </LinearLayout>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="16dp">
 
                 <LinearLayout
                     android:layout_width="0dp"
+                    android:gravity="center"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:gravity="center"
                     android:orientation="vertical">
 
                     <androidx.cardview.widget.CardView
@@ -235,34 +267,17 @@
 
                 </LinearLayout>
             </LinearLayout>
-
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
-    <TextView
-        android:id="@+id/text_pengaduan"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/card1"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="20dp"
-        android:fontFamily="@font/poppins_bold"
-        android:text="Pengaduan"
-        android:textColor="@color/black"
-        android:textSize="18sp" />
-
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/refresh_data"
-        android:layout_marginTop="10dp"
-        android:layout_below="@id/text_pengaduan"
-        android:layout_margin="6dp"
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/animationView4"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="200dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="16dp"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="true"
+        app:lottie_rawRes="@raw/animasi_kesehatan" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/list_data_pengaduan"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            tools:listitem="@layout/list_pengaduan" />
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 </RelativeLayout>

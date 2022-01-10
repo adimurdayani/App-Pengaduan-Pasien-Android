@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -12,7 +13,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -23,21 +23,23 @@ import androidx.fragment.app.FragmentManager;
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.RetryPolicy;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.auliya.pengaduanpasien.R;
 import com.auliya.pengaduanpasien.api.URLServer;
 import com.auliya.pengaduanpasien.view.HomeActivity;
-import com.auliya.pengaduanpasien.view.LoginActivity;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+
+import cn.pedant.SweetAlert.SweetAlertDialog;
 
 public class FragmentLogin extends Fragment {
 
@@ -81,6 +83,7 @@ public class FragmentLogin extends Fragment {
 
         btn_register.setOnClickListener(v -> {
             FragmentManager manager = getFragmentManager();
+            assert manager != null;
             manager.beginTransaction()
                     .replace(R.id.frm_login, new FragmentRegister())
                     .commit();
@@ -97,7 +100,6 @@ public class FragmentLogin extends Fragment {
     private void login() {
         dialog.setMessage("Loading...");
         dialog.show();
-
         loginUser = new StringRequest(Request.Method.POST, URLServer.LOGIN, response -> {
             try {
                 JSONObject object = new JSONObject(response);
@@ -113,28 +115,30 @@ public class FragmentLogin extends Fragment {
                     editor.putString("no_hp", data.getString("no_hp"));
                     editor.putString("user_id", data.getString("user_id"));
                     editor.putString("token_id", data.getString("token_id"));
+                    editor.putString("no_rekam", data.getString("no_rekam"));
+                    editor.putString("gambar", data.getString("gambar"));
+                    editor.putString("nik", data.getString("nik"));
+                    editor.putString("no_jaminan", data.getString("no_jaminan"));
+                    editor.putString("tgl_lahir", data.getString("tgl_lahir"));
+                    editor.putString("kelamin", data.getString("kelamin"));
                     editor.putBoolean("isLoggedIn", true);
                     editor.apply();
-
                     txt_token.setText(session_data.getString("token_id", ""));
-
                     startActivity(new Intent(getContext(), HomeActivity.class));
-                    ((LoginActivity) requireContext()).finish();
-                    Toast.makeText(getContext(), "Login success!", Toast.LENGTH_SHORT).show();
+                    requireActivity().finish();
                 } else {
-                    Toast.makeText(getContext(), object.getString("message"), Toast.LENGTH_SHORT).show();
+                    showError(object.getString("message"));
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
-                Toast.makeText(getContext(), "Message: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                showError(e.toString());
             }
             dialog.dismiss();
         }, error -> {
             dialog.dismiss();
-            error.printStackTrace();
-            Toast.makeText(getContext(), "Data tidak di temukan", Toast.LENGTH_SHORT).show();
+            showError("Username atau password tidak ditemukan");
         }) {
-            @Nullable
+            @NonNull
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 String token_generate = FirebaseInstanceId.getInstance().getToken();
@@ -145,8 +149,35 @@ public class FragmentLogin extends Fragment {
                 return map;
             }
         };
+        loginUser.setRetryPolicy(new RetryPolicy() {
+            @Override
+            public int getCurrentTimeout() {
+                return 2000;
+            }
+
+            @Override
+            public int getCurrentRetryCount() {
+                return 2000;
+            }
+
+            @Override
+            public void retry(VolleyError error) throws VolleyError {
+                if (Looper.myLooper() == null) {
+                    dialog.dismiss();
+                    Looper.prepare();
+                    showError("Koneksi gagal");
+
+                }
+            }
+        });
         RequestQueue koneksi = Volley.newRequestQueue(requireContext());
         koneksi.add(loginUser);
+    }
+
+    private void showError(String string) {
+        new SweetAlertDialog(requireActivity(), SweetAlertDialog.ERROR_TYPE).setTitleText("Oops...")
+                .setContentText(string)
+                .show();
     }
 
     public void getinputText() {

@@ -53,5 +53,21 @@ dependencies {
 
 //    notifkasi firebase
     implementation 'com.google.firebase:firebase-messaging:17.0.0'
+//    swetalert
+    implementation 'com.github.f0ris.sweetalert:library:1.6.2'
+//    imagepicker
+    implementation 'com.github.Drjacky:ImagePicker:2.1.11'
+    //    library image
+    implementation 'com.squareup.picasso:picasso:2.71828'
+    implementation 'com.github.bumptech.glide:glide:4.12.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.12.0'
+    //    mapbox library
+    implementation 'com.mapbox.mapboxsdk:mapbox-android-sdk:9.2.1'
+    implementation 'com.mapbox.mapboxsdk:mapbox-sdk-geojson:5.8.0'
+    implementation 'com.mapbox.mapboxsdk:mapbox-sdk-services:5.8.0'
+    implementation 'com.mapbox.mapboxsdk:mapbox-sdk-core:5.8.0'
+    implementation 'androidx.annotation:annotation:1.0.0'
+
+
 }
 apply plugin: 'com.google.gms.google-services'

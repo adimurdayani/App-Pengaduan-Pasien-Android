@@ -3,9 +3,12 @@ package com.auliya.pengaduanpasien.view;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Looper;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -13,6 +16,8 @@ import android.widget.Toast;
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.RetryPolicy;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.auliya.pengaduanpasien.R;
@@ -28,11 +33,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import cn.pedant.SweetAlert.SweetAlertDialog;
+
 public class DetailPengaduan extends AppCompatActivity {
 
     private ImageView btn_kembali;
     private String id_pengaduan;
-    private TextView txt_judulsaran, txt_saran, txt_email, txt_nama, txt_alamat, txt_tanggal,txt_judulsaran2, txt_balasan, txt_tanggal2;
+    private TextView txt_judulsaran, txt_saran, txt_email, txt_nama, txt_alamat,
+            txt_tanggal, txt_judulsaran2, txt_balasan, txt_tanggal2;
     private SharedPreferences preferences;
     private StringRequest getIdPengaduan;
 
@@ -59,14 +67,13 @@ public class DetailPengaduan extends AppCompatActivity {
         id_pengaduan = getIntent().getStringExtra("id_pengaduan");
 
         btn_kembali.setOnClickListener(v -> {
-            super.onBackPressed();
-            finish();
+            onBackPressed();
         });
 
     }
 
     public void setGetIdPengaduan() {
-        getIdPengaduan = new StringRequest(Request.Method.GET, URLServer.GETPENGADUANID + id_pengaduan, response -> {
+        getIdPengaduan = new StringRequest(Request.Method.GET, URLServer.GETDETAIL + id_pengaduan, response -> {
             try {
                 JSONObject object = new JSONObject(response);
                 if (object.getBoolean("status")) {
@@ -74,33 +81,46 @@ public class DetailPengaduan extends AppCompatActivity {
                     txt_nama.setText(data.getString("nama"));
                     txt_email.setText(data.getString("email"));
                     txt_alamat.setText(data.getString("alamat"));
-                    txt_judulsaran.setText(data.getString("judul_saran"));
                     txt_saran.setText(data.getString("saran"));
                     txt_tanggal.setText(data.getString("created_at"));
-
-                    txt_judulsaran2.setText(data.getString("judul_saran"));
                     txt_balasan.setText(data.getString("jawaban_saran"));
                     txt_tanggal2.setText(data.getString("created_at"));
                 } else {
-                    Toast.makeText(this, object.getString("message"), Toast.LENGTH_SHORT).show();
+                    showError(object.getString("message"));
                 }
             } catch (JSONException e) {
-                e.printStackTrace();
+                showError(e.toString());
             }
         }, error -> {
-            error.printStackTrace();
-        }) {
+            showError(error.toString());
+        });
+        getIdPengaduan.setRetryPolicy(new RetryPolicy() {
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                String token = preferences.getString("token", "");
-                HashMap<String, String> map = new HashMap<>();
-                map.put("Authorization", "Bearer " + token);
-                return map;
+            public int getCurrentTimeout() {
+                return 2000;
             }
 
-        };
+            @Override
+            public int getCurrentRetryCount() {
+                return 2000;
+            }
+
+            @Override
+            public void retry(VolleyError error) throws VolleyError {
+                if (Looper.myLooper() == null) {
+                    Looper.prepare();
+                    showError("Koneksi gagal");
+                }
+            }
+        });
         RequestQueue koneksi = Volley.newRequestQueue(this);
         koneksi.add(getIdPengaduan);
+    }
+
+    private void showError(String string) {
+        new SweetAlertDialog(this, SweetAlertDialog.ERROR_TYPE).setTitleText("Oops...")
+                .setContentText(string)
+                .show();
     }
 
     @Override

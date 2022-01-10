@@ -2,7 +2,49 @@ package com.auliya.pengaduanpasien.model;
 
 public class UserModel {
     private int id_regis, user_id, status;
-    private String nama, email, username, password, no_hp, kelamin, alamat, created_at, token_id;
+    private String nama, email, username, password, no_hp,
+            kelamin, alamat, created_at, token_id, gambar,
+            no_rekam, no_jaminan, tgl_lahir, nik;
+
+    public String getNo_rekam() {
+        return no_rekam;
+    }
+
+    public void setNo_rekam(String no_rekam) {
+        this.no_rekam = no_rekam;
+    }
+
+    public String getNo_jaminan() {
+        return no_jaminan;
+    }
+
+    public void setNo_jaminan(String no_jaminan) {
+        this.no_jaminan = no_jaminan;
+    }
+
+    public String getTgl_lahir() {
+        return tgl_lahir;
+    }
+
+    public void setTgl_lahir(String tgl_lahir) {
+        this.tgl_lahir = tgl_lahir;
+    }
+
+    public String getNik() {
+        return nik;
+    }
+
+    public void setNik(String nik) {
+        this.nik = nik;
+    }
+
+    public String getGambar() {
+        return gambar;
+    }
+
+    public void setGambar(String gambar) {
+        this.gambar = gambar;
+    }
 
     public String getToken_id() {
         return token_id;

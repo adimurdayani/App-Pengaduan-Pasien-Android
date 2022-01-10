@@ -28,14 +28,14 @@
         </LinearLayout>
 
         <TextView
-            android:id="@+id/judul_saran"
+            android:id="@+id/nama"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:layout_toEndOf="@id/img_user"
             android:fontFamily="@font/poppins_bold"
             android:maxLines="1"
-            android:text="Lorem Ipsum is simply dummy ..."
+            android:text="Nama"
             android:textColor="@color/black"
             android:textSize="14sp" />
 
@@ -49,7 +49,7 @@
             android:id="@+id/saran"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/judul_saran"
+            android:layout_below="@id/nama"
             android:layout_marginStart="10dp"
             android:layout_toEndOf="@id/img_user"
             android:fontFamily="@font/poppins_regular"

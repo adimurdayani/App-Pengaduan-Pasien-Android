@@ -3,9 +3,12 @@ package com.auliya.pengaduanpasien.view;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Looper;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -13,6 +16,8 @@ import android.widget.Toast;
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.RetryPolicy;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.auliya.pengaduanpasien.R;
@@ -27,9 +32,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import cn.pedant.SweetAlert.SweetAlertDialog;
+
 public class DetailRekamMedik extends AppCompatActivity {
     private ImageView btn_kembali;
-    private TextView txt_norm, txt_nojk, txt_diagnosa, txt_jenisobat, txt_tgllahir;
+    private TextView txt_norm, txt_nojk, txt_diagnosa, txt_jenisobat, txt_tgllahir,tanggal;
     public String id_rekam;
     private SharedPreferences preferences;
     private StringRequest getIdRekamMedik;
@@ -50,17 +57,15 @@ public class DetailRekamMedik extends AppCompatActivity {
         txt_nojk = findViewById(R.id.no_jk);
         txt_norm = findViewById(R.id.no_rm);
         txt_tgllahir = findViewById(R.id.tgl_lahir);
+        tanggal = findViewById(R.id.tanggal);
         sw_data = findViewById(R.id.sw_data);
 
         id_rekam = getIntent().getStringExtra("id_rekam");
 
-        sw_data.setOnRefreshListener(() -> {
-            setGetIdRekamMedik();
-        });
+        sw_data.setOnRefreshListener(this::setGetIdRekamMedik);
 
         btn_kembali.setOnClickListener(v -> {
-            super.onBackPressed();
-            finish();
+            onBackPressed();
         });
     }
 
@@ -76,29 +81,45 @@ public class DetailRekamMedik extends AppCompatActivity {
                     txt_norm.setText(data.getString("no_rm"));
                     txt_nojk.setText(data.getString("no_jaminan"));
                     txt_jenisobat.setText(data.getString("jenis_obat"));
-//                    txt_tanggal.setText(data.getString("created_at"));
+                    tanggal.setText(data.getString("created_at"));
                 } else {
-                    Toast.makeText(this, object.getString("message"), Toast.LENGTH_SHORT).show();
+                    showError(object.getString("message"));
                 }
             } catch (JSONException e) {
-                e.printStackTrace();
+                showError(e.toString());
             }
             sw_data.setRefreshing(false);
         }, error -> {
-            error.printStackTrace();
+            showError(error.toString());
             sw_data.setRefreshing(false);
-        }) {
+        });
+        getIdRekamMedik.setRetryPolicy(new RetryPolicy() {
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                String token = preferences.getString("token", "");
-                HashMap<String, String> map = new HashMap<>();
-                map.put("Authorization", "Bearer " + token);
-                return map;
+            public int getCurrentTimeout() {
+                return 2000;
             }
 
-        };
+            @Override
+            public int getCurrentRetryCount() {
+                return 2000;
+            }
+
+            @Override
+            public void retry(VolleyError error) throws VolleyError {
+                if (Looper.myLooper() == null) {
+                    Looper.prepare();
+                    showError("Koneksi gagal");
+                }
+            }
+        });
         RequestQueue koneksi = Volley.newRequestQueue(this);
         koneksi.add(getIdRekamMedik);
+    }
+
+    private void showError(String string) {
+        new SweetAlertDialog(this, SweetAlertDialog.ERROR_TYPE).setTitleText("Oops...")
+                .setContentText(string)
+                .show();
     }
 
     @Override

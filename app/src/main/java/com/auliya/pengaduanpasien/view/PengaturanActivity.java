@@ -2,43 +2,39 @@ package com.auliya.pengaduanpasien.view;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.AlertDialog;
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Looper;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.RetryPolicy;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.auliya.pengaduanpasien.R;
 import com.auliya.pengaduanpasien.api.URLServer;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.HashMap;
-import java.util.Map;
+import cn.pedant.SweetAlert.SweetAlertDialog;
 
 public class PengaturanActivity extends AppCompatActivity {
-
-    private ImageView btn_kembali;
-    private TextView txt_nama, txt_email, txt_no_hp, txt_kelamin;
-    private SharedPreferences preferences;
     private LinearLayout btn_pengaturan, btn_bantuan, btn_tentang, btn_keluar;
-    private Button btn_edit;
-
     private StringRequest prosesLogout;
+    private ImageView btn_kembali;
+    private SharedPreferences preferences;
     private ProgressDialog dialog;
 
     @Override
@@ -46,58 +42,25 @@ public class PengaturanActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pengaturan);
         init();
+        setButton();
     }
 
-    public void init() {
-        preferences = getApplication().getSharedPreferences("user", Context.MODE_PRIVATE);
-        btn_kembali = findViewById(R.id.btn_kembali);
-        txt_nama = findViewById(R.id.txt_nama);
-        txt_email = findViewById(R.id.txt_email);
-        txt_no_hp = findViewById(R.id.txt_no_telp);
-        btn_pengaturan = findViewById(R.id.btn_pengaturan);
-        btn_bantuan = findViewById(R.id.btn_bantuan);
-        btn_tentang = findViewById(R.id.btn_tentang);
-        btn_keluar = findViewById(R.id.btn_logout);
-        btn_edit = findViewById(R.id.btn_edit);
-        txt_kelamin = findViewById(R.id.txt_kelamin);
-
-        dialog = new ProgressDialog(this);
-        dialog.setCancelable(false);
-
-        txt_nama.setText(preferences.getString("nama", ""));
-        txt_email.setText(preferences.getString("email", ""));
-        txt_no_hp.setText(preferences.getString("no_hp", ""));
-        txt_kelamin.setText(preferences.getString("kelamin", ""));
-
-        btn_kembali.setOnClickListener(v -> {
-            super.onBackPressed();
-            finish();
-        });
+    private void setButton() {
 
         btn_keluar.setOnClickListener(v -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Apakah anda yakin ingin keluar?");
-            builder.setPositiveButton("Ya", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    logout();
-                }
-            });
-            builder.setNegativeButton("Tidak", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                }
-            });
-            builder.show();
+            new SweetAlertDialog(this, SweetAlertDialog.WARNING_TYPE)
+                    .setTitleText("Are you sure?")
+                    .setCancelButton("No", SweetAlertDialog::dismissWithAnimation)
+                    .setConfirmText("Yes")
+                    .setConfirmClickListener(sDialog -> {
+                        logout();
+                        sDialog.dismissWithAnimation();
+                    }).show();
         });
+
 
         btn_pengaturan.setOnClickListener(v -> {
             startActivity(new Intent(this, UbahPasswordActivity.class));
-        });
-
-        btn_edit.setOnClickListener(v -> {
-            startActivity(new Intent(this, UbahProfilActivity.class));
         });
 
         btn_bantuan.setOnClickListener(v -> {
@@ -107,6 +70,22 @@ public class PengaturanActivity extends AppCompatActivity {
         btn_tentang.setOnClickListener(v -> {
             startActivity(new Intent(this, TentangActivity.class));
         });
+        btn_kembali.setOnClickListener(v -> {
+            onBackPressed();
+        });
+
+    }
+
+    @SuppressLint( "SetTextI18n" )
+    public void init() {
+        preferences = getApplication().getSharedPreferences("user", Context.MODE_PRIVATE);
+        btn_pengaturan = findViewById(R.id.btn_pengaturan);
+        btn_bantuan = findViewById(R.id.btn_bantuan);
+        btn_tentang = findViewById(R.id.btn_tentang);
+        btn_keluar = findViewById(R.id.btn_logout);
+        btn_kembali = findViewById(R.id.btn_kembali);
+        dialog = new ProgressDialog(this);
+        dialog.setCancelable(false);
     }
 
     private void logout() {
@@ -123,31 +102,46 @@ public class PengaturanActivity extends AppCompatActivity {
                     editor.clear();
                     editor.apply();
 
-                    Toast.makeText(this, object.getString("message"), Toast.LENGTH_SHORT).show();
-
                     Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);
                     finish();
                 }
             } catch (JSONException e) {
-                e.printStackTrace();
+                showError(e.toString());
             }
             dialog.dismiss();
         }, error -> {
             dialog.dismiss();
-            error.printStackTrace();
-            Toast.makeText(this, "Terjadi Masalah Koneksi", Toast.LENGTH_SHORT).show();
-        }) {
+            showError(error.toString());
+        });
+        prosesLogout.setRetryPolicy(new RetryPolicy() {
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                String token = preferences.getString("token", "");
-                HashMap<String, String> map = new HashMap<>();
-                map.put("Authorization", "Bearer " + token);
-                return map;
+            public int getCurrentTimeout() {
+                return 2000;
             }
-        };
+
+            @Override
+            public int getCurrentRetryCount() {
+                return 2000;
+            }
+
+            @Override
+            public void retry(VolleyError error) throws VolleyError {
+                if (Looper.myLooper() == null) {
+                    dialog.dismiss();
+                    Looper.prepare();
+                    showError("Koneksi gagal!");
+                }
+            }
+        });
         RequestQueue queue = Volley.newRequestQueue(this);
         queue.add(prosesLogout);
+    }
+
+    private void showError(String string) {
+        new SweetAlertDialog(this, SweetAlertDialog.ERROR_TYPE).setTitleText("Oops...")
+                .setContentText(string)
+                .show();
     }
 }

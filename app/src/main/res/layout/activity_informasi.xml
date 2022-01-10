@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:mapbox="http://schemas.android.com/apk/res-auto"
     tools:context=".view.InformasiActivity">
 
     <androidx.appcompat.widget.Toolbar
@@ -42,10 +43,23 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
             android:orientation="vertical">
 
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="200dp">
+
+                <com.mapbox.mapboxsdk.maps.MapView
+                    android:id="@+id/mapView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    mapbox:mapbox_cameraTargetLat="-2.846668465838243"
+                    mapbox:mapbox_cameraTargetLng="120.2327993992361"
+                    mapbox:mapbox_cameraZoom="14"/>
+            </FrameLayout>
+
             <ImageView
+                android:layout_marginTop="10dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -82,38 +96,79 @@
                         android:textColor="@color/black"
                         android:textSize="18sp" />
 
-                    <TextView
-                        android:id="@+id/text"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_below="@id/text_lamasi"
-                        android:layout_centerHorizontal="true"
                         android:layout_marginTop="10dp"
-                        android:fontFamily="@font/poppins_regular"
-                        android:text="Puskesmas Lamasi Timur – Kab. Luwu
-Faskes Tingkat Pertama BPJS Kesehatan di Kab. Luwu\n\n
-Alamat : Ds. To’lemo, Kec. Lamasi Timur, Kab. Luwu, SulSel\n
-No. Telepon : 085242066253\n
-Kode Puskesmas : P7317093201\n
-Tipe Puskesmas : Non Rawat Inap
-\n\nNo. Telepon BPJS Kesehatan Luwu : (0471) 33114300
-Call Center BPJS Kesehatan : 1500400"
-                        android:textColor="@color/black"
-                        android:textSize="11sp" />
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/poppins_regular"
+                            android:text="Puskesmas Lamasi Timur – Kab. LuwuFaskes Tingkat Pertama BPJS Kesehatan di Kab. Luwu"
+                            android:textColor="@color/black"
+                            android:textSize="11sp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:fontFamily="@font/poppins_regular"
+                            android:text="Alamat : Ds. To’lemo, Kec. Lamasi Timur, Kab. Luwu, SulSel"
+                            android:textColor="@color/black"
+                            android:textSize="11sp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/poppins_regular"
+                            android:text="No. Telepon : 085242066253"
+                            android:textColor="@color/black"
+                            android:textSize="11sp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/poppins_regular"
+                            android:text="Kode Puskesmas : P7317093201"
+                            android:textColor="@color/black"
+                            android:textSize="11sp" />
+
+                        <TextView
+                            android:layout_marginTop="10dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/poppins_regular"
+                            android:text="Tipe Puskesmas : Non Rawat Inap"
+                            android:textColor="@color/black"
+                            android:textSize="11sp" />
+
+                        <TextView
+                            android:layout_marginTop="10dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/poppins_regular"
+                            android:text="No. Telepon BPJS Kesehatan Luwu : (0471) 33114300"
+                            android:textColor="@color/black"
+                            android:textSize="11sp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/poppins_regular"
+                            android:text="Call Center BPJS Kesehatan : 1500400"
+                            android:textColor="@color/black"
+                            android:textSize="11sp" />
+                    </LinearLayout>
 
                 </RelativeLayout>
             </androidx.cardview.widget.CardView>
+
+
         </LinearLayout>
     </ScrollView>
-
-    <com.airbnb.lottie.LottieAnimationView
-        android:id="@+id/animationView4"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:layout_alignParentBottom="true"
-        app:lottie_autoPlay="true"
-        app:lottie_loop="true"
-        android:layout_marginBottom="10dp"
-        app:lottie_rawRes="@raw/animasi_sehat" />
 
 </RelativeLayout>

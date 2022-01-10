@@ -47,8 +47,7 @@ public class TentangActivity extends AppCompatActivity {
             startActivity(ig);
         });
         btn_kembali.setOnClickListener(v -> {
-            super.onBackPressed();
-            finish();
+            onBackPressed();
         });
     }
 }

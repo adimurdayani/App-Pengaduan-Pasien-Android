@@ -1,61 +1,58 @@
 package com.auliya.pengaduanpasien.view;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
-import androidx.core.app.NotificationManagerCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.annotation.SuppressLint;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.RetryPolicy;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.auliya.pengaduanpasien.R;
 import com.auliya.pengaduanpasien.api.URLServer;
 import com.auliya.pengaduanpasien.model.PengaduanModel;
 import com.auliya.pengaduanpasien.presentasi.PengaduanAdapter;
-import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.RemoteMessage;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
-@SuppressLint( "MissingPermission" )
+import cn.pedant.SweetAlert.SweetAlertDialog;
+
+@SuppressLint("MissingPermission")
 public class HomeActivity extends AppCompatActivity {
 
     private CardView btn_pengaduan, btn_informasi, btn_rm, btn_pengaturan;
     private TextView txt_nama;
+    private ImageView img_user, div_img;
     private SharedPreferences preferences;
-    private SwipeRefreshLayout sw_data;
-    public static RecyclerView rc_data;
-    private RecyclerView.LayoutManager layoutManager;
     private StringRequest getPengaduan;
-    public static ArrayList<PengaduanModel> dataPengaduan;
-    private PengaduanAdapter adapter;
+    private LinearLayout notif;
+    private int id;
+    private String jawaban;
 
+    private ArrayList<PengaduanModel> dataPengaduan;
     private static final String TAG = "MainActivity";
 
     @Override
@@ -63,27 +60,10 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         init();
+        setButton();
     }
 
-    public void init() {
-        preferences = getApplication().getSharedPreferences("user", Context.MODE_PRIVATE);
-        btn_informasi = findViewById(R.id.btn_informasi);
-        btn_pengaduan = findViewById(R.id.btn_pengaduan);
-        btn_rm = findViewById(R.id.btn_rm);
-        btn_pengaturan = findViewById(R.id.btn_pengaturan);
-        txt_nama = findViewById(R.id.txt_nama);
-        rc_data = findViewById(R.id.list_data_pengaduan);
-        sw_data = findViewById(R.id.refresh_data);
-
-        layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
-        rc_data.setLayoutManager(layoutManager);
-        rc_data.setHasFixedSize(true);
-
-        txt_nama.setText(preferences.getString("nama", ""));
-
-        sw_data.setOnRefreshListener(() -> {
-            setGetPengaduan();
-        });
+    private void setButton() {
 
         btn_informasi.setOnClickListener(v -> {
             startActivity(new Intent(getApplicationContext(), InformasiActivity.class));
@@ -100,87 +80,155 @@ public class HomeActivity extends AppCompatActivity {
         btn_rm.setOnClickListener(v -> {
             startActivity(new Intent(getApplicationContext(), RekamMedikActivity.class));
         });
+        img_user.setOnClickListener(v -> {
+            startActivity(new Intent(getApplicationContext(), Profile.class));
+        });
+        txt_nama.setOnClickListener(v -> {
+            startActivity(new Intent(getApplicationContext(), Profile.class));
+        });
+    }
 
+    public void init() {
+        preferences = getApplication().getSharedPreferences("user", Context.MODE_PRIVATE);
+        btn_informasi = findViewById(R.id.btn_informasi);
+        btn_pengaduan = findViewById(R.id.btn_pengaduan);
+        btn_rm = findViewById(R.id.btn_rm);
+        btn_pengaturan = findViewById(R.id.btn_pengaturan);
+        txt_nama = findViewById(R.id.txt_nama);
+        img_user = findViewById(R.id.img_user);
+        notif = findViewById(R.id.notif);
+
+        String gambar = preferences.getString("gambar", "");
+        if (gambar.isEmpty()) {
+            img_user.setVisibility(View.GONE);
+        } else {
+            img_user.setVisibility(View.VISIBLE);
+        }
+
+        id = preferences.getInt("id_regis", 0);
+
+        txt_nama.setText(preferences.getString("nama", ""));
+    }
+
+    private void getUser() {
+        getPengaduan = new StringRequest(Request.Method.GET, URLServer.GETUSER + id, response -> {
+            try {
+                JSONObject object = new JSONObject(response);
+                if (object.getBoolean("status")) {
+                    JSONObject data = object.getJSONObject("data");
+                    Glide.with(this)
+                            .load(URLServer.URL_IMAGE + data.getString("gambar"))
+                            .centerCrop()
+                            .apply(RequestOptions.circleCropTransform())
+                            .into(img_user);
+                    Log.d("Respon", "Url Image: " + data.getString("gambar"));
+                } else {
+                    showError(object.getString("message"));
+                }
+            } catch (JSONException e) {
+                showError(e.toString());
+            }
+        }, error -> {
+            showError(error.toString());
+        });
+        getPengaduan.setRetryPolicy(new RetryPolicy() {
+            @Override
+            public int getCurrentTimeout() {
+                return 2000;
+            }
+
+            @Override
+            public int getCurrentRetryCount() {
+                return 2000;
+            }
+
+            @Override
+            public void retry(VolleyError error) throws VolleyError {
+                if (Looper.myLooper() == null) {
+                    Looper.prepare();
+                    showError("Koneksi gagal!");
+                }
+            }
+        });
+        RequestQueue queue = Volley.newRequestQueue(this);
+        queue.add(getPengaduan);
     }
 
     public void setGetPengaduan() {
         dataPengaduan = new ArrayList<>();
-        sw_data.setRefreshing(true);
-
-        getPengaduan = new StringRequest(Request.Method.GET, URLServer.GETPENGADUAN, response -> {
-            try {
-                JSONObject object = new JSONObject(response);
-                if (object.getBoolean("status")) {
-                    JSONArray data = new JSONArray(object.getString("data"));
-                    for (int i = 0; i < data.length(); i++) {
-
-                        JSONObject getData = data.getJSONObject(i);
-
-                        PengaduanModel getDataPengaduan = new PengaduanModel();
-                        getDataPengaduan.setId(getData.getInt("id"));
-                        getDataPengaduan.setUser_id(getData.getInt("user_id"));
-                        getDataPengaduan.setGrup_id(getData.getInt("grup_id"));
-                        getDataPengaduan.setSaran(getData.getString("saran"));
-                        getDataPengaduan.setJudul_saran(getData.getString("judul_saran"));
-                        getDataPengaduan.setCreated_at(getData.getString("created_at"));
-                        dataPengaduan.add(getDataPengaduan);
-
+        int id = preferences.getInt("id_regis", 0);
+        getPengaduan = new StringRequest(Request.Method.GET, URLServer.GETPENGADUAN + id, response -> {
+            if (response != null) {
+                try {
+                    JSONObject object = new JSONObject(response);
+                    if (object.getBoolean("status")) {
+                        JSONArray data = new JSONArray(object.getString("data"));
+                        for (int i = 0; i < data.length(); i++) {
+                            JSONObject getData = data.getJSONObject(i);
+                            PengaduanModel getDataPengaduan = new PengaduanModel();
+                            getDataPengaduan.setId(getData.getInt("id"));
+                            getDataPengaduan.setUser_id(getData.getInt("user_id"));
+                            getDataPengaduan.setGrup_id(getData.getInt("grup_id"));
+                            getDataPengaduan.setSaran(getData.getString("saran"));
+                            getDataPengaduan.setJawaban_saran(getData.getString("jawaban_saran"));
+                            getDataPengaduan.setCreated_at(getData.getString("created_at"));
+                            dataPengaduan.add(getDataPengaduan);
+                        }
+                        jawaban = dataPengaduan.get(0).getJawaban_saran();
+                        Log.d("Response", "Jawaban: " + jawaban);
+                        if (jawaban.equals("null")) {
+                            notif.setVisibility(View.GONE);
+                        } else {
+                            notif.setVisibility(View.VISIBLE);
+                        }
+                    } else {
+                        showError(object.getString("message"));
                     }
-                    adapter = new PengaduanAdapter(this, dataPengaduan);
-                    rc_data.setAdapter(adapter);
-                } else {
-                    Toast.makeText(this, object.getString("message"), Toast.LENGTH_SHORT).show();
+                } catch (JSONException e) {
+                    showError(e.toString());
                 }
-            } catch (JSONException e) {
-                e.printStackTrace();
+            } else {
+                showError(null);
             }
-            sw_data.setRefreshing(false);
         }, error -> {
-            sw_data.setRefreshing(false);
-            error.printStackTrace();
-            Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    SharedPreferences.Editor editor = preferences.edit();
-                    editor.remove(preferences.getString("token", ""));
-                    editor.remove(String.valueOf(preferences.getInt("id_regis", 0)));
-                    editor.remove(preferences.getString("nama", ""));
-                    editor.clear();
-                    editor.apply();
+            Log.d("respon", "err: " + error.networkResponse);
+        });
+        getPengaduan.setRetryPolicy(new RetryPolicy() {
+            @Override
+            public int getCurrentTimeout() {
+                return 2000;
+            }
 
-                    Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(intent);
-                    finish();
+            @Override
+            public int getCurrentRetryCount() {
+                return 2000;
+            }
+
+            @Override
+            public void retry(VolleyError error) throws VolleyError {
+                if (Looper.myLooper() == null) {
+                    Looper.prepare();
+                    showError("Koneksi gagal!");
+
                 }
-            }, 60000);
-        }) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                String token = preferences.getString("token", "");
-                HashMap<String, String> map = new HashMap<>();
-                map.put("Authorization", "Bearer " + token);
-                return map;
             }
-
-            @Nullable
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                String generate_token = preferences.getString("token_id", "");
-                HashMap<String, String> map = new HashMap<>();
-                map.put("token_generate", generate_token);
-                return map;
-            }
-        };
+        });
         RequestQueue koneksi = Volley.newRequestQueue(this);
         koneksi.add(getPengaduan);
     }
 
+
+    private void showError(String string) {
+        new SweetAlertDialog(this, SweetAlertDialog.ERROR_TYPE).setTitleText("Oops...")
+                .setContentText(string)
+                .show();
+    }
+
     @Override
     protected void onResume() {
-        super.onResume();
+        getUser();
         setGetPengaduan();
+        super.onResume();
     }
 
 }

@@ -2,7 +2,39 @@ package com.auliya.pengaduanpasien.model;
 
 public class PengaduanModel {
     private int id, user_id, grup_id;
-    private String saran, judul_saran, jawaban_saran, created_at;
+    private String saran, judul_saran, jawaban_saran, created_at, nama, no_hp, alamat, email;
+
+    public String getNama() {
+        return nama;
+    }
+
+    public void setNama(String nama) {
+        this.nama = nama;
+    }
+
+    public String getNo_hp() {
+        return no_hp;
+    }
+
+    public void setNo_hp(String no_hp) {
+        this.no_hp = no_hp;
+    }
+
+    public String getAlamat() {
+        return alamat;
+    }
+
+    public void setAlamat(String alamat) {
+        this.alamat = alamat;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
     public int getId() {
         return id;

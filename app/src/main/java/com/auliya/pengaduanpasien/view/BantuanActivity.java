@@ -20,8 +20,7 @@ public class BantuanActivity extends AppCompatActivity {
     public void init(){
         btn_kembali = findViewById(R.id.btn_kembali);
         btn_kembali.setOnClickListener(v -> {
-            super.onBackPressed();
-            finish();
+            onBackPressed();
         });
     }
 }

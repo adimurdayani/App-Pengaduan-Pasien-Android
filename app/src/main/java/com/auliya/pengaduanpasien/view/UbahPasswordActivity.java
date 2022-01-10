@@ -1,14 +1,18 @@
 package com.auliya.pengaduanpasien.view;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Patterns;
@@ -20,6 +24,8 @@ import android.widget.Toast;
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.RetryPolicy;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.auliya.pengaduanpasien.R;
@@ -36,6 +42,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import cn.pedant.SweetAlert.SweetAlertDialog;
+
 public class UbahPasswordActivity extends AppCompatActivity {
     private ImageView btn_kembali;
     private TextInputLayout l_username, l_password, l_konfir_pass;
@@ -43,15 +51,6 @@ public class UbahPasswordActivity extends AppCompatActivity {
     private Button btn_update;
     public String username, password, konfir_pass;
     public int id_regis;
-    public static final Pattern PASSWORD_FORMAT = Pattern.compile("^" +
-            "(?=.*[1-9])" + //harus menggunakan satu angka
-            "(?=.*[a-z])" + //harus menggunakan abjad
-            "(?=.*[A-Z])" + //harus menggunakan huruf kapital
-            "(?=.*[@#$%^&+=])" + //harus menggunakan sepesial karakter
-            "(?=\\S+$)" + // tidak menggunakan spasi
-            ".{6,}" + //harus lebih dari 6 karakter
-            "$"
-    );
 
     private ProgressDialog dialog;
     private StringRequest updatePassword;
@@ -94,10 +93,8 @@ public class UbahPasswordActivity extends AppCompatActivity {
     }
 
     private void updatepassword() {
-
         dialog.setMessage("Loading...");
         dialog.show();
-
         updatePassword = new StringRequest(Request.Method.POST, URLServer.UPDATE_PASSWORD, response -> {
             try {
                 JSONObject object = new JSONObject(response);
@@ -109,33 +106,24 @@ public class UbahPasswordActivity extends AppCompatActivity {
                     editor.clear();
                     editor.apply();
 
-                    Toast.makeText(this, "Update password success!", Toast.LENGTH_LONG).show();
+                    showDialog();
                     Intent intent = new Intent(this, LoginActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);
                     finish();
                 } else {
-                    Toast.makeText(this, "Message: " + object.getString("message"), Toast.LENGTH_SHORT).show();
+                    showError(object.getString("message"));
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
-                Toast.makeText(this, "Message: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                showError(e.toString());
             }
             dialog.dismiss();
         }, error -> {
             dialog.dismiss();
-            error.printStackTrace();
-            Toast.makeText(this, "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+            showError(error.toString());
         }) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                String token = preferences.getString("token", "");
-                HashMap<String, String> map = new HashMap<>();
-                map.put("Authorization", "Bearer " + token);
-                return map;
-            }
-
-            @Nullable
+            @NonNull
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 HashMap<String, String> map = new HashMap<>();
@@ -145,8 +133,39 @@ public class UbahPasswordActivity extends AppCompatActivity {
                 return map;
             }
         };
+        updatePassword.setRetryPolicy(new RetryPolicy() {
+            @Override
+            public int getCurrentTimeout() {
+                return 2000;
+            }
+
+            @Override
+            public int getCurrentRetryCount() {
+                return 2000;
+            }
+
+            @Override
+            public void retry(VolleyError error) throws VolleyError {
+                if (Looper.myLooper() == null) {
+                    Looper.prepare();
+                    showError("Koneksi gagal");
+                }
+            }
+        });
         RequestQueue koneksi = Volley.newRequestQueue(this);
         koneksi.add(updatePassword);
+    }
+
+    private void showDialog() {
+        new SweetAlertDialog(this, SweetAlertDialog.SUCCESS_TYPE)
+                .setTitleText("Sukses!")
+                .show();
+    }
+
+    private void showError(String string) {
+        new SweetAlertDialog(this, SweetAlertDialog.ERROR_TYPE).setTitleText("Oops...")
+                .setContentText(string)
+                .show();
     }
 
     public void getinputtext() {
@@ -189,8 +208,6 @@ public class UbahPasswordActivity extends AppCompatActivity {
                     l_password.setErrorEnabled(false);
                 } else if (password.length() > 7) {
                     l_password.setErrorEnabled(false);
-                } else if (PASSWORD_FORMAT.matcher(password).matches()) {
-                    l_password.setErrorEnabled(false);
                 }
             }
 
@@ -210,8 +227,6 @@ public class UbahPasswordActivity extends AppCompatActivity {
                 if (konfir_pass.isEmpty()) {
                     l_konfir_pass.setErrorEnabled(false);
                 } else if (konfir_pass.length() > 7) {
-                    l_konfir_pass.setErrorEnabled(false);
-                } else if (PASSWORD_FORMAT.matcher(konfir_pass).matches()) {
                     l_konfir_pass.setErrorEnabled(false);
                 } else if (konfir_pass.matches(password)) {
                     l_konfir_pass.setErrorEnabled(false);
@@ -241,10 +256,6 @@ public class UbahPasswordActivity extends AppCompatActivity {
             l_password.setErrorEnabled(true);
             l_password.setError("Password tidak boleh kurang dari 6 karakter!");
             return false;
-        } else if (!PASSWORD_FORMAT.matcher(password).matches()) {
-            l_password.setErrorEnabled(true);
-            l_password.setError("Password sangat lemah!. Contoh: @Jad123");
-            return false;
         }
         if (konfir_pass.isEmpty()) {
             l_konfir_pass.setErrorEnabled(true);
@@ -253,10 +264,6 @@ public class UbahPasswordActivity extends AppCompatActivity {
         } else if (konfir_pass.length() < 6) {
             l_konfir_pass.setErrorEnabled(true);
             l_konfir_pass.setError("Konfirmasi password tidak boleh kurang dari 6 karakter!");
-            return false;
-        } else if (!PASSWORD_FORMAT.matcher(konfir_pass).matches()) {
-            l_konfir_pass.setErrorEnabled(true);
-            l_konfir_pass.setError("Konfirmasi password sangat lemah!");
             return false;
         } else if (!konfir_pass.matches(password)) {
             l_konfir_pass.setErrorEnabled(true);

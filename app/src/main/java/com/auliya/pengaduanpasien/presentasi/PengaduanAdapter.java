@@ -41,8 +41,7 @@ public class PengaduanAdapter extends RecyclerView.Adapter<PengaduanAdapter.Hold
         holder.txt_id.setText(String.valueOf(pengaduanModel.getId()));
         holder.txt_tanggal.setText(pengaduanModel.getCreated_at());
         holder.txt_saran.setText(pengaduanModel.getSaran());
-        holder.txt_judul_saran.setText(pengaduanModel.getJudul_saran());
-        holder.txt_judul_saran.setText(pengaduanModel.getJudul_saran());
+        holder.nama.setText(pengaduanModel.getNama());
         holder.pengaduandetail.setOnClickListener(v -> {
             Intent i = new Intent(context, DetailPengaduan.class);
             i.putExtra("id_pengaduan", holder.txt_id.getText().toString().trim());
@@ -57,11 +56,11 @@ public class PengaduanAdapter extends RecyclerView.Adapter<PengaduanAdapter.Hold
     }
 
     public class HolderData extends RecyclerView.ViewHolder{
-        private TextView  txt_judul_saran, txt_saran, txt_tanggal, txt_id;
+        private TextView   txt_saran, txt_tanggal, txt_id, nama;
         private CardView pengaduandetail;
         public HolderData(@NonNull View itemView) {
             super(itemView);
-            txt_judul_saran = itemView.findViewById(R.id.judul_saran);
+            nama = itemView.findViewById(R.id.nama);
             txt_saran = itemView.findViewById(R.id.saran);
             txt_tanggal = itemView.findViewById(R.id.tanggal);
             txt_id  = itemView.findViewById(R.id.txt_id);

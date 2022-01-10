@@ -29,15 +29,6 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:src="@drawable/ic_kembali_putih" />
-
-            <ImageView
-                android:id="@+id/img_bell"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:layout_marginEnd="16dp"
-                android:src="@drawable/ic_notfi" />
         </RelativeLayout>
     </androidx.appcompat.widget.Toolbar>
 
@@ -51,6 +42,7 @@
             android:layout_height="wrap_content">
 
             <androidx.cardview.widget.CardView
+                android:id="@+id/edit_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
@@ -80,26 +72,11 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:layout_marginBottom="10dp"
-                        android:textAlignment="center"
                         android:fontFamily="@font/poppins_medium"
                         android:text="Jika anda ingin menyampaikan saran/kritik mohon dapat ditulis pada lembar di bwah ini, dengan di sertai data lengkap anda."
+                        android:textAlignment="center"
                         android:textColor="@color/black"
                         android:textSize="14sp" />
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/l_judul_saran"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp">
-
-                        <EditText
-                            android:id="@+id/e_judul_saran"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/poppins_medium"
-                            android:hint="Judul Saran"
-                            android:inputType="textCapSentences" />
-                    </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/l_saran"
@@ -112,7 +89,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="100dp"
                             android:fontFamily="@font/poppins_medium"
-                            android:hint="Saran"
+                            android:hint="Aduan"
                             android:inputType="textCapSentences|textMultiLine" />
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -128,6 +105,20 @@
 
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
+
+            <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+                android:id="@+id/sw_data"
+                android:layout_width="match_parent"
+                android:layout_height="500dp"
+                android:layout_below="@+id/edit_text"
+                android:padding="10dp">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rc_data"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:listitem="@layout/list_pengaduan" />
+            </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
         </RelativeLayout>
     </ScrollView>
 

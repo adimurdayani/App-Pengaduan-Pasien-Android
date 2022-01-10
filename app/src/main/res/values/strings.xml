@@ -17,4 +17,7 @@
     <string name="msg_subscribed">Subscribed to weather topic</string>
     <string name="msg_subscribe_failed">Failed to subscribe to weather topic</string>
     <string name="msg_token_fmt"><![CDATA[<string name=\"msg_token_fmt\" translatable=\"false\">FCM registration Token: %s</string>]]></string>
+    <string name="directions_activity_toast_message">Salah</string>
+
+
 </resources>

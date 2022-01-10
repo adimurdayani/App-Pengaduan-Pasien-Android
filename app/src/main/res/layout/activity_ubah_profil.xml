@@ -39,21 +39,12 @@
                 android:text="Ubah Profile"
                 android:textColor="@color/white"
                 android:textSize="18sp" />
-
-            <ImageView
-                android:id="@+id/img_bell"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:layout_marginEnd="16dp"
-                android:src="@drawable/ic_notfi" />
         </RelativeLayout>
     </androidx.appcompat.widget.Toolbar>
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_below="@id/top">
 
         <androidx.cardview.widget.CardView
@@ -65,14 +56,61 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="20dp"
                 android:orientation="vertical"
                 android:padding="10dp">
 
                 <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/l_nama"
+                    android:id="@+id/l_norekam"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
+
+                    <EditText
+                        android:id="@+id/e_norekam"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/poppins_medium"
+                        android:hint="No. Rekam Medik"
+                        android:enabled="false"
+                        android:inputType="text" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/l_nik"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp">
+
+                    <EditText
+                        android:id="@+id/e_nik"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/poppins_medium"
+                        android:hint="NIK"
+                        android:inputType="number" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/l_nojaminan"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp">
+
+                    <EditText
+                        android:id="@+id/e_nojaminan"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/poppins_medium"
+                        android:hint="No. Jaminan Kesehatan"
+                        android:inputType="number" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/l_nama"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp">
 
                     <EditText
                         android:id="@+id/e_nama"
@@ -111,6 +149,21 @@
                         android:fontFamily="@font/poppins_medium"
                         android:hint="Phone"
                         android:inputType="phone" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/l_tgl_lahir"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp">
+
+                    <EditText
+                        android:id="@+id/e_tgl_lahir"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/poppins_medium"
+                        android:hint="Tanggal Lahir"
+                        android:inputType="date" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <TextView
@@ -154,12 +207,12 @@
                     android:id="@+id/btn_update"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:clickable="true"
-                    android:text="Update"
-                    android:fontFamily="@font/poppins_medium"
                     android:layout_marginTop="20dp"
-                    android:textAllCaps="false"
-                    android:focusable="true" />
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:fontFamily="@font/poppins_medium"
+                    android:text="Update"
+                    android:textAllCaps="false" />
             </LinearLayout>
 
         </androidx.cardview.widget.CardView>

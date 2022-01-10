@@ -1,7 +1,10 @@
 package com.auliya.pengaduanpasien.view.fragment;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Patterns;
@@ -22,6 +25,8 @@ import androidx.fragment.app.FragmentManager;
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.RetryPolicy;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.auliya.pengaduanpasien.R;
@@ -38,6 +43,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import cn.pedant.SweetAlert.SweetAlertDialog;
+
 public class FragmentRegister extends Fragment {
 
     private View view;
@@ -46,19 +53,9 @@ public class FragmentRegister extends Fragment {
     private TextView txt_getToken;
     private EditText e_nama, e_username, e_email, e_password, e_konfir_pass;
     private TextInputLayout l_nama, l_username, l_email, l_password, l_konfir_pass;
-    public static final Pattern PASSWORD_FORMAT = Pattern.compile("^" +
-            "(?=.*[1-9])" + //harus menggunakan satu angka
-            "(?=.*[a-z])" + //harus menggunakan abjad
-            "(?=.*[A-Z])" + //harus menggunakan huruf kapital
-            "(?=.*[@#$%^&+=])" + //harus menggunakan sepesial karakter
-            "(?=\\S+$)" + // tidak menggunakan spasi
-            ".{6,}" + //harus lebih dari 6 karakter
-            "$"
-    );
 
     private ProgressDialog dialog;
     private StringRequest registerUser;
-    private ArrayList<UserModel> dataUser;
     public String nama, username, email, password, konf_pass, getToken;
 
     public FragmentRegister() {
@@ -95,6 +92,7 @@ public class FragmentRegister extends Fragment {
 
         btn_kembali.setOnClickListener(v -> {
             FragmentManager manager = getFragmentManager();
+            assert manager != null;
             manager.beginTransaction()
                     .replace(R.id.frm_login, new FragmentLogin())
                     .commit();
@@ -109,7 +107,6 @@ public class FragmentRegister extends Fragment {
     }
 
     private void register() {
-        dataUser = new ArrayList<>();
         dialog.setMessage("Loading...");
         dialog.show();
 
@@ -125,25 +122,23 @@ public class FragmentRegister extends Fragment {
                     postUser.setPassword(data.getString("password"));
                     postUser.setToken_id(data.getString("token_id"));
 
+                    showDialog();
                     FragmentManager manager = getFragmentManager();
                     assert manager != null;
                     manager.beginTransaction().replace(R.id.frm_login, new FragmentLogin())
                             .commit();
-                    Toast.makeText(getContext(), "Register success!", Toast.LENGTH_LONG).show();
                 } else {
-                    Toast.makeText(getContext(), "Message: " + object.getString("message"), Toast.LENGTH_SHORT).show();
+                    showError(object.getString("message"));
                 }
             } catch (JSONException e) {
-                e.printStackTrace();
-                Toast.makeText(getContext(), "Message: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                showError(e.toString());
             }
             dialog.dismiss();
         }, error -> {
             dialog.dismiss();
-            error.printStackTrace();
-            Toast.makeText(getContext(), "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+            showError(error.toString());
         }) {
-            @Nullable
+            @NonNull
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 HashMap<String, String> map = new HashMap<>();
@@ -155,17 +150,50 @@ public class FragmentRegister extends Fragment {
                 return map;
             }
         };
+        registerUser.setRetryPolicy(new RetryPolicy() {
+            @Override
+            public int getCurrentTimeout() {
+                return 2000;
+            }
+
+            @Override
+            public int getCurrentRetryCount() {
+                return 2000;
+            }
+
+            @Override
+            public void retry(VolleyError error) throws VolleyError {
+                if (Looper.myLooper() == null) {
+                    dialog.dismiss();
+                    Looper.prepare();
+                    showError("Koneksi gagal");
+                }
+            }
+        });
         RequestQueue koneksi = Volley.newRequestQueue(requireContext());
         koneksi.add(registerUser);
     }
 
-    public void getinputText(){
+    private void showDialog() {
+        new SweetAlertDialog(requireActivity(), SweetAlertDialog.SUCCESS_TYPE)
+                .setTitleText("Sukses")
+                .show();
+    }
+
+    private void showError(String string) {
+        new SweetAlertDialog(requireActivity(), SweetAlertDialog.ERROR_TYPE)
+                .setTitleText("Oops...")
+                .setContentText(string)
+                .show();
+    }
+
+    public void getinputText() {
         nama = e_nama.getText().toString().trim();
         username = e_username.getText().toString().trim();
         email = e_email.getText().toString().trim();
         password = e_password.getText().toString().trim();
         konf_pass = e_konfir_pass.getText().toString().trim();
-        getToken  = txt_getToken.getText().toString().trim();
+        getToken = txt_getToken.getText().toString().trim();
     }
 
     public void cekvalidasi() {
@@ -239,8 +267,6 @@ public class FragmentRegister extends Fragment {
                     l_password.setErrorEnabled(false);
                 } else if (password.length() > 7) {
                     l_password.setErrorEnabled(false);
-                } else if (PASSWORD_FORMAT.matcher(password).matches()) {
-                    l_password.setErrorEnabled(false);
                 }
             }
 
@@ -260,8 +286,6 @@ public class FragmentRegister extends Fragment {
                 if (konf_pass.isEmpty()) {
                     l_konfir_pass.setErrorEnabled(false);
                 } else if (konf_pass.length() > 7) {
-                    l_konfir_pass.setErrorEnabled(false);
-                } else if (PASSWORD_FORMAT.matcher(konf_pass).matches()) {
                     l_konfir_pass.setErrorEnabled(false);
                 } else if (konf_pass.matches(password)) {
                     l_konfir_pass.setErrorEnabled(false);
@@ -305,11 +329,8 @@ public class FragmentRegister extends Fragment {
             l_password.setErrorEnabled(true);
             l_password.setError("Password tidak boleh kurang dari 6 karakter!");
             return false;
-        } else if (!PASSWORD_FORMAT.matcher(password).matches()) {
-            l_password.setErrorEnabled(true);
-            l_password.setError("Password sangat lemah!. Contoh: @Jad123");
-            return false;
         }
+
         if (konf_pass.isEmpty()) {
             l_konfir_pass.setErrorEnabled(true);
             l_konfir_pass.setError("Kolom konfirmasi password tidak boleh kosong!");
@@ -317,10 +338,6 @@ public class FragmentRegister extends Fragment {
         } else if (konf_pass.length() < 6) {
             l_konfir_pass.setErrorEnabled(true);
             l_konfir_pass.setError("Konfirmasi password tidak boleh kurang dari 6 karakter!");
-            return false;
-        } else if (!PASSWORD_FORMAT.matcher(konf_pass).matches()) {
-            l_konfir_pass.setErrorEnabled(true);
-            l_konfir_pass.setError("Konfirmasi password sangat lemah!");
             return false;
         } else if (!konf_pass.matches(password)) {
             l_konfir_pass.setErrorEnabled(true);
